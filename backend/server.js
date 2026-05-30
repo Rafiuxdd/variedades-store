@@ -18,7 +18,8 @@ const { verifyToken, requirePermission } = require("./middlewares/auth");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const WHATSAPP_OWNER_NUMBER = process.env.WHATSAPP_OWNER_NUMBER || "50300000000";
+const WHATSAPP_OWNER_NUMBER = String(process.env.WHATSAPP_OWNER_NUMBER || "50370537289")
+  .replace(/[^\d]/g, "");
 const RESERVATION_MINUTES = Number(process.env.RESERVATION_MINUTES || 30);
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production";
@@ -52,6 +53,8 @@ const TEMPORARILY_DISABLED_ORDER_OPTIONS = {
   delivery: true,
   paymentLink: true
 };
+const MAX_ORDER_ITEMS = 25;
+const MAX_ORDER_QUANTITY_PER_ITEM = 20;
 
 if (!process.env.JWT_SECRET || weakJwtSecrets.has(process.env.JWT_SECRET)) {
   throw new Error("Configura JWT_SECRET con un valor largo y aleatorio en backend/.env");
@@ -59,6 +62,10 @@ if (!process.env.JWT_SECRET || weakJwtSecrets.has(process.env.JWT_SECRET)) {
 
 if (isProduction && process.env.JWT_SECRET.length < 32) {
   throw new Error("JWT_SECRET debe tener al menos 32 caracteres en produccion");
+}
+
+if (!/^\d{10,15}$/.test(WHATSAPP_OWNER_NUMBER)) {
+  throw new Error("WHATSAPP_OWNER_NUMBER debe estar en formato internacional, solo numeros");
 }
 
 if (isProduction) {
@@ -91,8 +98,46 @@ const loginLimiter = rateLimit({
   }
 });
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 500,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    ok: false,
+    message: "Demasiadas solicitudes. Intenta de nuevo en unos minutos."
+  }
+});
+
+const orderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 12,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    ok: false,
+    message: "Demasiados intentos de pedido. Intenta de nuevo en unos minutos."
+  }
+});
+
+const webhookLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    ok: false,
+    message: "Demasiadas solicitudes de webhook."
+  }
+});
+
 app.set("trust proxy", 1);
-app.use(helmet());
+app.disable("x-powered-by");
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  })
+);
 app.use(
   cors({
     origin(origin, callback) {
@@ -106,7 +151,7 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.post("/api/wompi/webhook", express.raw({ type: "application/json", limit: "256kb" }), async (req, res) => {
+app.post("/api/wompi/webhook", webhookLimiter, express.raw({ type: "application/json", limit: "256kb" }), async (req, res) => {
   try {
     const apiSecret = process.env.WOMPI_API_SECRET;
     const receivedHash = req.get("wompi_hash");
@@ -167,6 +212,7 @@ app.post("/api/wompi/webhook", express.raw({ type: "application/json", limit: "2
 });
 app.use(express.json({ limit: "1mb" }));
 
+app.use("/api", apiLimiter);
 app.use("/api/auth/login", loginLimiter);
 app.use("/api/auth", authRoutes);
 
@@ -208,6 +254,10 @@ function addMinutes(date, minutes) {
 
 function normalizePhone(phone) {
   return String(phone || "").replace(/[^\d+]/g, "").trim();
+}
+
+function isSafeId(value) {
+  return /^[a-zA-Z0-9_-]{1,80}$/.test(String(value || ""));
 }
 
 function isValidEmail(email) {
@@ -444,6 +494,32 @@ function validateOrderPayload(body) {
     errors.push("Debes enviar al menos un producto en el pedido.");
   }
 
+  if (Array.isArray(items) && items.length > MAX_ORDER_ITEMS) {
+    errors.push(`No puedes enviar mas de ${MAX_ORDER_ITEMS} productos distintos por pedido.`);
+  }
+
+  if (Array.isArray(items)) {
+    for (const item of items) {
+      if (!isSafeId(item?.productId)) {
+        errors.push("Uno de los productos enviados no es valido.");
+        break;
+      }
+
+      const quantity = Number(item?.quantity);
+
+      if (
+        !Number.isInteger(quantity) ||
+        quantity <= 0 ||
+        quantity > MAX_ORDER_QUANTITY_PER_ITEM
+      ) {
+        errors.push(
+          `La cantidad por producto debe estar entre 1 y ${MAX_ORDER_QUANTITY_PER_ITEM}.`
+        );
+        break;
+      }
+    }
+  }
+
   if (deliveryMethod === "DELIVERY" && (!deliveryAddress || !deliveryAddress.trim())) {
     errors.push("La dirección de entrega es obligatoria para delivery.");
   }
@@ -453,6 +529,10 @@ function validateOrderPayload(body) {
     (!deliveryPointId || !String(deliveryPointId).trim())
   ) {
     errors.push("Debes seleccionar un punto de entrega.");
+  }
+
+  if (deliveryPointId && !isSafeId(deliveryPointId)) {
+    errors.push("El punto de entrega seleccionado no es valido.");
   }
 
   return errors;
@@ -1191,7 +1271,7 @@ app.get("/api/orders", verifyToken, requirePermission("orders"), async (req, res
   }
 });
 
-app.post("/api/orders", async (req, res) => {
+app.post("/api/orders", orderLimiter, async (req, res) => {
   const connection = await getConnection();
 
   try {
