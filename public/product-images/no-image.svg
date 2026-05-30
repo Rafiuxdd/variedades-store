@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="650" viewBox="0 0 900 650" role="img" aria-labelledby="title desc">
+  <title id="title">Imagen no disponible</title>
+  <desc id="desc">Marcador sobrio para productos sin imagen cargada.</desc>
+  <rect width="900" height="650" fill="#f3f6f9"/>
+  <rect x="250" y="195" width="400" height="260" fill="#ffffff" stroke="#d9e0e8" stroke-width="4"/>
+  <path d="M294 397l93-98 72 72 42-44 105 115H294z" fill="#d9e0e8"/>
+  <circle cx="545" cy="270" r="34" fill="#c8d3dd"/>
+  <text x="450" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#526173">Imagen no disponible</text>
+</svg>
