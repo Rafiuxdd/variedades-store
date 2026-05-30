@@ -120,6 +120,21 @@ INSERT IGNORE INTO users
 VALUES
   ('admin-variedades', 'Administrador', 'admin@tienda.com', '$2b$10$/k6TBlWTunxCwCV/EyhK2OkntXStb3q1ROtfBXNMwvvmNpwVieZnC', 'ADMIN', 1, 1, 1, 1, 1, 1);
 
+INSERT INTO users
+  (id, name, email, passwordHash, role, isActive, canDashboard, canOrders, canUsers, canProducts, canDeliveryPoints)
+VALUES
+  ('admin-variedades-produccion', 'Administrador Variedades', 'admin.variedades@tienda.com', '$2b$10$ireESDc/QtV9YZkdDCH4i.FQfnBwQtx.C77b9vJEtTxOZTIMmIA1i', 'ADMIN', 1, 1, 1, 1, 1, 1)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  passwordHash = VALUES(passwordHash),
+  role = VALUES(role),
+  isActive = VALUES(isActive),
+  canDashboard = VALUES(canDashboard),
+  canOrders = VALUES(canOrders),
+  canUsers = VALUES(canUsers),
+  canProducts = VALUES(canProducts),
+  canDeliveryPoints = VALUES(canDeliveryPoints);
+
 DELETE FROM products
 WHERE id NOT IN (
   'teclado-mouse-imice-an300',

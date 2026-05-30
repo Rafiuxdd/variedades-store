@@ -48,6 +48,10 @@ const DEFAULT_DELIVERY_RATES = {
   Sonzacate: 2
 };
 const SONSONATE_MUNICIPALITIES = Object.keys(DEFAULT_DELIVERY_RATES);
+const TEMPORARILY_DISABLED_ORDER_OPTIONS = {
+  delivery: true,
+  paymentLink: true
+};
 
 if (!process.env.JWT_SECRET || weakJwtSecrets.has(process.env.JWT_SECRET)) {
   throw new Error("Configura JWT_SECRET con un valor largo y aleatorio en backend/.env");
@@ -424,8 +428,16 @@ function validateOrderPayload(body) {
     errors.push("Debes seleccionar un tipo de entrega válido.");
   }
 
+  if (TEMPORARILY_DISABLED_ORDER_OPTIONS.delivery && deliveryMethod === "DELIVERY") {
+    errors.push("Delivery esta temporalmente deshabilitado.");
+  }
+
   if (!paymentMethod || !["CASH", "PAYMENT_LINK"].includes(paymentMethod)) {
     errors.push("Debes seleccionar un método de pago válido.");
+  }
+
+  if (TEMPORARILY_DISABLED_ORDER_OPTIONS.paymentLink && paymentMethod === "PAYMENT_LINK") {
+    errors.push("El link de pago esta temporalmente deshabilitado.");
   }
 
   if (!Array.isArray(items) || items.length === 0) {

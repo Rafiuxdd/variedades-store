@@ -9,6 +9,11 @@ import {
   SONSONATE_MUNICIPALITIES
 } from "../data/deliveryZones";
 
+const CLIENT_DISABLED_OPTIONS = {
+  delivery: true,
+  paymentLink: true
+};
+
 function Cart({
   cart = [],
   addToCart,
@@ -116,6 +121,10 @@ function Cart({
       return "Debes seleccionar un tipo de entrega.";
     }
 
+    if (CLIENT_DISABLED_OPTIONS.delivery && checkoutData.deliveryMethod === "DELIVERY") {
+      return "Delivery esta temporalmente deshabilitado. Por favor selecciona punto de entrega.";
+    }
+
     if (checkoutData.deliveryMethod === "DELIVERY") {
       if (!checkoutData.deliveryDepartment) {
         return "Debes seleccionar tu departamento.";
@@ -141,6 +150,10 @@ function Cart({
 
     if (!checkoutData.paymentMethod) {
       return "Debes seleccionar un método de pago.";
+    }
+
+    if (CLIENT_DISABLED_OPTIONS.paymentLink && checkoutData.paymentMethod === "PAYMENT_LINK") {
+      return "El link de pago esta temporalmente deshabilitado. Por favor selecciona efectivo.";
     }
 
     if (
@@ -389,7 +402,9 @@ function Cart({
                 onChange={handleChange}
               >
                 <option value="">Selecciona una opción</option>
-                <option value="DELIVERY">Delivery</option>
+                <option value="DELIVERY" disabled={CLIENT_DISABLED_OPTIONS.delivery}>
+                  Delivery - temporalmente no disponible
+                </option>
                 <option value="PICKUP_POINT">Punto de entrega</option>
               </select>
             </label>
@@ -516,7 +531,9 @@ function Cart({
               >
                 <option value="">Selecciona una opción</option>
                 <option value="CASH">Efectivo</option>
-                <option value="PAYMENT_LINK">Link de pago</option>
+                <option value="PAYMENT_LINK" disabled={CLIENT_DISABLED_OPTIONS.paymentLink}>
+                  Link de pago - temporalmente no disponible
+                </option>
               </select>
             </label>
 
