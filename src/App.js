@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Panel from "./pages/Panel";
 import InfoPage from "./pages/InfoPage";
+import ProductDetail from "./pages/ProductDetail";
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
@@ -534,6 +535,16 @@ function App() {
                   clearCart={clearCart}
                   refreshStore={loadData}
                   deliveryRates={deliveryRates}
+                />
+              }
+            />
+
+            <Route
+              path="/producto/:id"
+              element={
+                <ProductDetail
+                  products={productsForHome}
+                  addToCart={addToCart}
                 />
               }
             />

@@ -11,7 +11,6 @@ const INITIAL_CATEGORIES = [
   "Sin categoría",
   ...Array.from(new Set(initialProducts.map((product) => product.category)))
 ];
-const APPROVED_PRODUCT_NAMES = new Set(initialProducts.map((product) => product.name));
 
 function buildCategoryNames(categoryData = []) {
   const names = categoryData.map((category) => category.name);
@@ -47,11 +46,7 @@ export function useStoreData() {
 
       setCategoryRecords(categoryData);
       setCategories(buildCategoryNames(categoryData));
-      setProducts(
-        productData
-          .map(mapProductFromApi)
-          .filter((product) => APPROVED_PRODUCT_NAMES.has(product.name))
-      );
+      setProducts(productData.map(mapProductFromApi));
       setDeliveryPoints(deliveryPointsData);
     } catch (error) {
       console.error(error);

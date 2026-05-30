@@ -124,6 +124,10 @@ export async function getProducts() {
   return request("/products");
 }
 
+export async function getProduct(productId) {
+  return request(`/products/${productId}`);
+}
+
 export async function createProduct(payload) {
   return request("/products", {
     method: "POST",

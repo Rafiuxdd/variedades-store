@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const ProductCard = React.memo(function ProductCard({ product, addToCart }) {
   const isOutOfStock = Number(product.stock) <= 0;
@@ -48,6 +49,10 @@ const ProductCard = React.memo(function ProductCard({ product, addToCart }) {
         >
           {isOutOfStock ? "Sin stock" : "Agregar al carrito"}
         </button>
+
+        <Link className="product-detail-link" to={`/producto/${product.id}`}>
+          Ver detalles
+        </Link>
       </div>
     </div>
   );
