@@ -31,19 +31,36 @@ export function useCart() {
     [cart]
   );
 
-  const addItemToCart = useCallback((product) => {
+  const addItemToCart = useCallback((product, selectedOptions = {}) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      const optionEntries = Object.entries(selectedOptions)
+        .filter(([, value]) => value)
+        .sort(([a], [b]) => a.localeCompare(b));
+      const optionKey = optionEntries
+        .map(([key, value]) => `${key}:${value}`)
+        .join("|");
+      const productId = product.productId || product.id;
+      const cartId = optionKey ? `${productId}__${optionKey}` : productId;
+      const existingItem = prevCart.find((item) => item.id === cartId);
 
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === product.id
+          item.id === cartId
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
 
-      return [...prevCart, { ...product, quantity: 1 }];
+      return [
+        ...prevCart,
+        {
+          ...product,
+          id: cartId,
+          productId,
+          selectedOptions,
+          quantity: 1
+        }
+      ];
     });
   }, []);
 

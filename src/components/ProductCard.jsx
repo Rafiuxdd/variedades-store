@@ -6,7 +6,11 @@ const ProductCard = React.memo(function ProductCard({ product, addToCart }) {
 
   return (
     <div className="product-card">
-      <div className="product-image-wrapper">
+      <Link
+        className="product-image-wrapper product-image-link"
+        to={`/producto/${product.id}`}
+        aria-label={`Ver detalles de ${product.name}`}
+      >
         <img
           src={product.image}
           alt={product.name}
@@ -27,7 +31,7 @@ const ProductCard = React.memo(function ProductCard({ product, addToCart }) {
             <span className="product-status-badge in">Disponible</span>
           )}
         </div>
-      </div>
+      </Link>
 
       <div className="product-content">
         <span className="product-card-category">{product.category}</span>
@@ -49,10 +53,6 @@ const ProductCard = React.memo(function ProductCard({ product, addToCart }) {
         >
           {isOutOfStock ? "Sin stock" : "Agregar al carrito"}
         </button>
-
-        <Link className="product-detail-link" to={`/producto/${product.id}`}>
-          Ver detalles
-        </Link>
       </div>
     </div>
   );

@@ -260,6 +260,38 @@ function isSafeId(value) {
   return /^[a-zA-Z0-9_-]{1,80}$/.test(String(value || ""));
 }
 
+function cleanSelectedOptions(options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    return {};
+  }
+
+  const cleanOptions = {};
+  const allowedKeys = new Set(["Color", "Modelo"]);
+
+  for (const [key, value] of Object.entries(options)) {
+    const cleanKey = String(key || "").trim();
+    const cleanValue = String(value || "").trim();
+
+    if (!allowedKeys.has(cleanKey) || !cleanValue) {
+      continue;
+    }
+
+    cleanOptions[cleanKey] = cleanValue.slice(0, 80);
+  }
+
+  return cleanOptions;
+}
+
+function formatSelectedOptions(options = {}) {
+  const entries = Object.entries(cleanSelectedOptions(options));
+
+  if (entries.length === 0) {
+    return "";
+  }
+
+  return entries.map(([key, value]) => `${key}: ${value}`).join(", ");
+}
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
@@ -502,6 +534,18 @@ function validateOrderPayload(body) {
     for (const item of items) {
       if (!isSafeId(item?.productId)) {
         errors.push("Uno de los productos enviados no es valido.");
+        break;
+      }
+
+      const selectedOptions = item?.selectedOptions;
+
+      if (
+        selectedOptions &&
+        (typeof selectedOptions !== "object" ||
+          Array.isArray(selectedOptions) ||
+          Object.keys(selectedOptions).length > 2)
+      ) {
+        errors.push("Las opciones seleccionadas no son validas.");
         break;
       }
 
@@ -1401,12 +1445,16 @@ app.post("/api/orders", orderLimiter, async (req, res) => {
 
     const preparedItems = items.map((item) => {
       const dbProduct = productsMap.get(item.productId);
+      const optionText = formatSelectedOptions(item.selectedOptions);
+      const itemName = optionText
+        ? `${dbProduct.name} (${optionText})`
+        : dbProduct.name;
 
       return {
         productId: dbProduct.id,
         quantity: Number(item.quantity),
         price: Number(dbProduct.price),
-        name: dbProduct.name,
+        name: itemName,
         imageUrl: dbProduct.imageUrl || null
       };
     });

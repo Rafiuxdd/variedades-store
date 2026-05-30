@@ -136,8 +136,9 @@ function App() {
 
   const productsForHome = useMemo(() => {
     return products.map((product) => {
-      const cartItem = cart.find((item) => item.id === product.id);
-      const quantityInCart = cartItem ? Number(cartItem.quantity) : 0;
+      const quantityInCart = cart
+        .filter((item) => (item.productId || item.id) === product.id)
+        .reduce((total, item) => total + Number(item.quantity || 0), 0);
       const availableStock = Math.max(0, Number(product.stock) - quantityInCart);
 
       return {
@@ -148,7 +149,7 @@ function App() {
   }, [products, cart]);
 
   const addToCart = useCallback(
-    (productId) => {
+    (productId, selectedOptions = {}) => {
       const product = products.find((p) => p.id === productId);
 
       if (!product) {
@@ -156,8 +157,9 @@ function App() {
         return;
       }
 
-      const cartItem = cart.find((item) => item.id === productId);
-      const quantityInCart = cartItem ? Number(cartItem.quantity) : 0;
+      const quantityInCart = cart
+        .filter((item) => (item.productId || item.id) === productId)
+        .reduce((total, item) => total + Number(item.quantity || 0), 0);
       const availableStock = Number(product.stock) - quantityInCart;
 
       if (availableStock <= 0) {
@@ -165,7 +167,7 @@ function App() {
         return;
       }
 
-      addItemToCart(product);
+      addItemToCart(product, selectedOptions);
       setStoreMessage(`Agregaste "${product.name}" al carrito.`);
     },
     [products, cart, addItemToCart]

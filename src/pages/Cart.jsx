@@ -194,8 +194,9 @@ function Cart({
           : null,
       deliveryPrice: shippingCost,
       items: cart.map((item) => ({
-        productId: item.id,
-        quantity: Number(item.quantity)
+        productId: item.productId || item.id,
+        quantity: Number(item.quantity),
+        selectedOptions: item.selectedOptions || {}
       }))
     };
   };
@@ -324,6 +325,15 @@ function Cart({
                   </button>
                 </div>
                 <p>{item.description}</p>
+                {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
+                  <div className="cart-item-options">
+                    {Object.entries(item.selectedOptions).map(([key, value]) => (
+                      <span key={`${item.id}-${key}`}>
+                        {key}: {value}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <span className="cart-item-category">{item.category}</span>
                 <strong>${Number(item.price).toFixed(2)}</strong>
               </div>
@@ -341,7 +351,7 @@ function Cart({
                   <button
                     type="button"
                     className="cart-qty-btn"
-                    onClick={() => addToCart?.(item.id)}
+                    onClick={() => addToCart?.(item.productId || item.id, item.selectedOptions || {})}
                   >
                     +
                   </button>
