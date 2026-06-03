@@ -37,13 +37,16 @@ WOMPI_REDIRECT_URL=https://TU_DOMINIO_FRONTEND/cart
 WOMPI_WEBHOOK_URL=https://TU_DOMINIO_BACKEND/api/wompi/webhook
 ```
 
-## Variables de produccion del frontend
+## Variables de produccion del frontend en Netlify
 
-Antes de compilar o en el panel del hosting:
+Configurar en Netlify:
 
 ```env
-REACT_APP_API_URL=https://TU_DOMINIO_BACKEND/api
+BACKEND_URL=https://TU_DOMINIO_BACKEND
 ```
+
+No configures `REACT_APP_API_URL` apuntando directo a Railway en produccion.
+El frontend usa `/api` y Netlify lo reenvia al backend con una funcion proxy para que la cookie `httpOnly` de sesion funcione en el mismo dominio del sitio.
 
 ## Comandos
 
