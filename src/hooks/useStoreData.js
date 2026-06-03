@@ -7,16 +7,18 @@ import {
 import { mapProductFromApi } from "../lib/mapper";
 import initialProducts from "../data/products";
 
+const DEFAULT_CATEGORY = "Sin categoría";
+
 const INITIAL_CATEGORIES = [
-  "Sin categoría",
+  DEFAULT_CATEGORY,
   ...Array.from(new Set(initialProducts.map((product) => product.category)))
 ];
 
 function buildCategoryNames(categoryData = []) {
   const names = categoryData.map((category) => category.name);
 
-  if (!names.includes("Sin categoría")) {
-    return ["Sin categoría", ...names];
+  if (!names.includes(DEFAULT_CATEGORY)) {
+    return [DEFAULT_CATEGORY, ...names];
   }
 
   return names;
@@ -43,10 +45,11 @@ export function useStoreData() {
       const categoryData = categoriesResponse.data || [];
       const productData = productsResponse.data || [];
       const deliveryPointsData = deliveryPointsResponse.data || [];
+      const mappedProducts = productData.map(mapProductFromApi);
 
       setCategoryRecords(categoryData);
-      setCategories(buildCategoryNames(categoryData));
-      setProducts(productData.map(mapProductFromApi));
+      setCategories(categoryData.length > 0 ? buildCategoryNames(categoryData) : INITIAL_CATEGORIES);
+      setProducts(mappedProducts.length > 0 ? mappedProducts : initialProducts);
       setDeliveryPoints(deliveryPointsData);
     } catch (error) {
       console.error(error);
