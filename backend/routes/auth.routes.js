@@ -34,7 +34,7 @@ function cookieOptions() {
   return {
     httpOnly: true,
     secure: isProduction,
-    sameSite: "lax",
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 2 * 60 * 60 * 1000,
     path: "/"
   };

@@ -55,6 +55,7 @@ const TEMPORARILY_DISABLED_ORDER_OPTIONS = {
 };
 const MAX_ORDER_ITEMS = 25;
 const MAX_ORDER_QUANTITY_PER_ITEM = 20;
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 if (!process.env.JWT_SECRET || weakJwtSecrets.has(process.env.JWT_SECRET)) {
   throw new Error("Configura JWT_SECRET con un valor largo y aleatorio en backend/.env");
@@ -130,6 +131,34 @@ const webhookLimiter = rateLimit({
     message: "Demasiadas solicitudes de webhook."
   }
 });
+
+function requireTrustedOrigin(req, res, next) {
+  if (SAFE_METHODS.has(req.method)) {
+    return next();
+  }
+
+  const origin = req.get("origin");
+
+  if (!origin) {
+    if (!isProduction) {
+      return next();
+    }
+
+    return res.status(403).json({
+      ok: false,
+      message: "Origen requerido para esta solicitud"
+    });
+  }
+
+  if (!allowedOrigins.includes(origin)) {
+    return res.status(403).json({
+      ok: false,
+      message: "Origen no permitido"
+    });
+  }
+
+  return next();
+}
 
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
@@ -213,6 +242,7 @@ app.post("/api/wompi/webhook", webhookLimiter, express.raw({ type: "application/
 app.use(express.json({ limit: "1mb" }));
 
 app.use("/api", apiLimiter);
+app.use("/api", requireTrustedOrigin);
 app.use("/api/auth/login", loginLimiter);
 app.use("/api/auth", authRoutes);
 

@@ -267,7 +267,11 @@ function Cart({
       setFormSuccess("Pedido creado correctamente. Abriendo WhatsApp...");
 
       if (orderResponse.whatsappUrl) {
-        window.open(orderResponse.whatsappUrl, "_blank");
+        const whatsappWindow = window.open(orderResponse.whatsappUrl, "_blank", "noopener,noreferrer");
+
+        if (whatsappWindow) {
+          whatsappWindow.opener = null;
+        }
       }
     } catch (error) {
       console.error(error);
