@@ -158,6 +158,106 @@ const products = [
     category: "Accesorios para celulares",
     description:
       "Cover Silicon Space para celular, funda flexible de uso diario con proteccion trasera y bordes suaves.\nModelos iPhone: iPhone 11, 11 Pro, 11 Pro Max, 12, 12 Pro, 12 Pro Max, 13, 13 Pro, 13 Pro Max, 14, 14 Plus, 14 Pro, 14 Pro Max, 15, 15 Plus, 15 Pro, 15 Pro Max, 16, 16 Plus, 16 Pro y 16 Pro Max.\nColores: Negro, azul, rosado, morado, verde, rojo y transparente segun disponibilidad. Luego se retiran los modelos o colores que no esten en inventario real."
+  },
+  {
+    id: "calculadora-casio-hl815l",
+    name: "Calculadora Casio HL-815L",
+    price: 1,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Tecnologia",
+    description:
+      "Calculadora basica Casio HL-815L de 8 digitos.\nUso: Escuela, oficina y comercio.\nNota: Precio pendiente de confirmar."
+  },
+  {
+    id: "calculadora-ruizuon-rz8098",
+    name: "Calculadora Ruizuon RZ-8098",
+    price: 1,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Tecnologia",
+    description:
+      "Calculadora basica de bolsillo Ruizuon RZ-8098.\nColor observado: Rosa.\nUso: Escuela, oficina y comercio.\nNota: Precio pendiente de confirmar."
+  },
+  {
+    id: "cargador-fast-charger-2en1-6a",
+    name: "Cargador Fast Charger 2 en 1 - 6.0A",
+    price: 1,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Accesorios para celulares",
+    description:
+      "Cargador 2 en 1 Fast Charger de carga rapida.\nCaracteristicas visibles: 6.0A y cable incluido.\nNota: Precio pendiente de confirmar."
+  },
+  {
+    id: "mobile-phone-holder-vehiculo",
+    name: "Mobile Phone Holder",
+    price: 4,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Accesorios para celulares",
+    description:
+      "Soporte para celular de vehiculo con ventosa para parabrisas o tablero.\nPrecio visible: $4.00.\nUso: Sujetar el telefono en carro."
+  },
+  {
+    id: "funda-vanguard-samsung-a04",
+    name: "Funda Vanguard Samsung A04",
+    price: 5,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Accesorios para celulares",
+    description:
+      "Funda Vanguard para Samsung A04 tipo silicona Soft Touch.\nColor visible: Morado/Lila.\nPrecio visible: $5.00."
+  },
+  {
+    id: "funda-durazno-naranja",
+    name: "Funda color durazno/naranja",
+    price: 5,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Accesorios para celulares",
+    description:
+      "Funda para celular color durazno o naranja.\nCompatibilidad pendiente de confirmar: parece iPhone o Samsung.\nPrecio visible: $5.00."
+  },
+  {
+    id: "rectangular-self-cleaning-comb",
+    name: "Rectangular Self-Cleaning Comb",
+    price: 1,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Mascotas",
+    description:
+      "Cepillo autolimpiante rectangular para gatos y perros.\nFuncion: Retira pelo muerto y usa boton para expulsar el pelo acumulado.\nNota: Precio pendiente de confirmar."
+  },
+  {
+    id: "bolsa-celular-bicicleta-impermeable",
+    name: "Bolsa impermeable para celular de bicicleta",
+    price: 4,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Accesorios para bicicleta",
+    description:
+      "Bolsa impermeable para celular con montaje en manubrio de bicicleta.\nIncluye compartimento para telefono.\nPrecio visible aproximado: $4.00."
+  },
+  {
+    id: "cable-blanco-usb",
+    name: "Cable blanco USB",
+    price: 4,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Accesorios para celulares",
+    description:
+      "Cable blanco USB para carga.\nCompatibilidad pendiente de confirmar: parece iPhone o USB-C.\nPrecio visible: $4.00."
+  },
+  {
+    id: "adaptador-usb-magnetico-celular",
+    name: "Adaptador USB magnetico para celular",
+    price: 1,
+    stock: 2,
+    image: "/product-images/no-image.svg",
+    category: "Accesorios para celulares",
+    description:
+      "Adaptador o soporte magnetico para celular en caja naranja.\nParece accesorio magnetico para automovil.\nNota: Precio pendiente de confirmar."
   }
 ];
 

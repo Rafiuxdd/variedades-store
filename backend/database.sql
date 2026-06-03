@@ -115,7 +115,8 @@ INSERT IGNORE INTO categories (id, name) VALUES
   ('cuidado-personal', 'Cuidado personal'),
   ('ninos-juguetes', 'Ninos y juguetes'),
   ('maquillaje', 'Maquillaje'),
-  ('variedades', 'Variedades');
+  ('variedades', 'Variedades'),
+  ('bicicleta', 'Accesorios para bicicleta');
 
 INSERT IGNORE INTO users
   (id, name, email, passwordHash, role, isActive, canDashboard, canOrders, canUsers, canProducts, canDeliveryPoints)
@@ -154,7 +155,17 @@ WHERE id NOT IN (
   'dispensador-agua-mclassic-md02',
   'labiales-infantiles-florales',
   'labial-liquido-annasa-moisture',
-  'cover-silicon-space-iphone'
+  'cover-silicon-space-iphone',
+  'calculadora-casio-hl815l',
+  'calculadora-ruizuon-rz8098',
+  'cargador-fast-charger-2en1-6a',
+  'mobile-phone-holder-vehiculo',
+  'funda-vanguard-samsung-a04',
+  'funda-durazno-naranja',
+  'rectangular-self-cleaning-comb',
+  'bolsa-celular-bicicleta-impermeable',
+  'cable-blanco-usb',
+  'adaptador-usb-magnetico-celular'
 )
 AND id NOT IN (SELECT DISTINCT productId FROM order_items);
 
@@ -176,7 +187,17 @@ WHERE id NOT IN (
   'dispensador-agua-mclassic-md02',
   'labiales-infantiles-florales',
   'labial-liquido-annasa-moisture',
-  'cover-silicon-space-iphone'
+  'cover-silicon-space-iphone',
+  'calculadora-casio-hl815l',
+  'calculadora-ruizuon-rz8098',
+  'cargador-fast-charger-2en1-6a',
+  'mobile-phone-holder-vehiculo',
+  'funda-vanguard-samsung-a04',
+  'funda-durazno-naranja',
+  'rectangular-self-cleaning-comb',
+  'bolsa-celular-bicicleta-impermeable',
+  'cable-blanco-usb',
+  'adaptador-usb-magnetico-celular'
 );
 
 INSERT INTO products (id, name, description, price, stock, imageUrl, categoryId) VALUES
@@ -195,7 +216,17 @@ INSERT INTO products (id, name, description, price, stock, imageUrl, categoryId)
   ('dispensador-agua-mclassic-md02', 'Dispensador de agua MClassic MD-02', 'Dispensador automatico de agua MClassic MD-02 recargable por USB para botellones.\nColores: Blanco.\nIncluye: Manguera, tubo metalico y cable USB.', 7.99, 3, '/product-images/producto-blanco.webp', 'hogar-cocina'),
   ('labiales-infantiles-florales', 'Labiales infantiles florales', 'Labiales de colores con empaque floral, ideales para juego, detalle o uso cosmetico ligero segun disponibilidad.\nColores y stock: 2 azul, 2 amarillo, 2 naranja, 2 rojo, 2 verde y 2 rosado.\nPresentacion: Barra tipo labial.', 1.99, 12, '/product-images/producto-colores-12.jpg', 'maquillaje'),
   ('labial-liquido-annasa-moisture', 'Labial liquido Annasa Moisture', 'Labial liquido Annasa Moisture con acabado brillante y tonos variados.\nColores: Rojo, vino, nude, rosa, marron y terracota segun modelos visibles.\nNota: Confirmar tonos exactos al preparar pedido.', 2.50, 10, '/product-images/producto-modelos-colores.jpg', 'maquillaje'),
-  ('cover-silicon-space-iphone', 'Cover Silicon Space para iPhone', 'Cover Silicon Space para celular, funda flexible de uso diario con proteccion trasera y bordes suaves.\nModelos iPhone: iPhone 11, 11 Pro, 11 Pro Max, 12, 12 Pro, 12 Pro Max, 13, 13 Pro, 13 Pro Max, 14, 14 Plus, 14 Pro, 14 Pro Max, 15, 15 Plus, 15 Pro, 15 Pro Max, 16, 16 Plus, 16 Pro y 16 Pro Max.\nColores: Negro, azul, rosado, morado, verde, rojo y transparente segun disponibilidad. Luego se retiran los modelos o colores que no esten en inventario real.', 3.99, 14, 'https://mayoreo.mundoinnovacionhn.com/wp-content/uploads/2023/08/176378-Cober-Silicon-Space-Honor-X8.jpg', 'celulares')
+  ('cover-silicon-space-iphone', 'Cover Silicon Space para iPhone', 'Cover Silicon Space para celular, funda flexible de uso diario con proteccion trasera y bordes suaves.\nModelos iPhone: iPhone 11, 11 Pro, 11 Pro Max, 12, 12 Pro, 12 Pro Max, 13, 13 Pro, 13 Pro Max, 14, 14 Plus, 14 Pro, 14 Pro Max, 15, 15 Plus, 15 Pro, 15 Pro Max, 16, 16 Plus, 16 Pro y 16 Pro Max.\nColores: Negro, azul, rosado, morado, verde, rojo y transparente segun disponibilidad. Luego se retiran los modelos o colores que no esten en inventario real.', 3.99, 14, 'https://mayoreo.mundoinnovacionhn.com/wp-content/uploads/2023/08/176378-Cober-Silicon-Space-Honor-X8.jpg', 'celulares'),
+  ('calculadora-casio-hl815l', 'Calculadora Casio HL-815L', 'Calculadora basica Casio HL-815L de 8 digitos.\nUso: Escuela, oficina y comercio.\nNota: Precio pendiente de confirmar.', 1.00, 2, '/product-images/no-image.svg', 'tecnologia'),
+  ('calculadora-ruizuon-rz8098', 'Calculadora Ruizuon RZ-8098', 'Calculadora basica de bolsillo Ruizuon RZ-8098.\nColor observado: Rosa.\nUso: Escuela, oficina y comercio.\nNota: Precio pendiente de confirmar.', 1.00, 2, '/product-images/no-image.svg', 'tecnologia'),
+  ('cargador-fast-charger-2en1-6a', 'Cargador Fast Charger 2 en 1 - 6.0A', 'Cargador 2 en 1 Fast Charger de carga rapida.\nCaracteristicas visibles: 6.0A y cable incluido.\nNota: Precio pendiente de confirmar.', 1.00, 2, '/product-images/no-image.svg', 'celulares'),
+  ('mobile-phone-holder-vehiculo', 'Mobile Phone Holder', 'Soporte para celular de vehiculo con ventosa para parabrisas o tablero.\nPrecio visible: $4.00.\nUso: Sujetar el telefono en carro.', 4.00, 2, '/product-images/no-image.svg', 'celulares'),
+  ('funda-vanguard-samsung-a04', 'Funda Vanguard Samsung A04', 'Funda Vanguard para Samsung A04 tipo silicona Soft Touch.\nColor visible: Morado/Lila.\nPrecio visible: $5.00.', 5.00, 2, '/product-images/no-image.svg', 'celulares'),
+  ('funda-durazno-naranja', 'Funda color durazno/naranja', 'Funda para celular color durazno o naranja.\nCompatibilidad pendiente de confirmar: parece iPhone o Samsung.\nPrecio visible: $5.00.', 5.00, 2, '/product-images/no-image.svg', 'celulares'),
+  ('rectangular-self-cleaning-comb', 'Rectangular Self-Cleaning Comb', 'Cepillo autolimpiante rectangular para gatos y perros.\nFuncion: Retira pelo muerto y usa boton para expulsar el pelo acumulado.\nNota: Precio pendiente de confirmar.', 1.00, 2, '/product-images/no-image.svg', 'mascotas'),
+  ('bolsa-celular-bicicleta-impermeable', 'Bolsa impermeable para celular de bicicleta', 'Bolsa impermeable para celular con montaje en manubrio de bicicleta.\nIncluye compartimento para telefono.\nPrecio visible aproximado: $4.00.', 4.00, 2, '/product-images/no-image.svg', 'bicicleta'),
+  ('cable-blanco-usb', 'Cable blanco USB', 'Cable blanco USB para carga.\nCompatibilidad pendiente de confirmar: parece iPhone o USB-C.\nPrecio visible: $4.00.', 4.00, 2, '/product-images/no-image.svg', 'celulares'),
+  ('adaptador-usb-magnetico-celular', 'Adaptador USB magnetico para celular', 'Adaptador o soporte magnetico para celular en caja naranja.\nParece accesorio magnetico para automovil.\nNota: Precio pendiente de confirmar.', 1.00, 2, '/product-images/no-image.svg', 'celulares')
 ON DUPLICATE KEY UPDATE
   name = VALUES(name),
   description = VALUES(description),
