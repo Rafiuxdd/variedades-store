@@ -3845,6 +3845,27 @@ body::before,
   letter-spacing: 0;
 }
 
+.checkout-whatsapp-link {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border: 1px solid #153b5f;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #153b5f;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}
+
+.checkout-whatsapp-link:hover {
+  background: #eef4f8;
+}
+
 .hero .hero-button {
   margin-top: 28px;
   background: #ffffff;

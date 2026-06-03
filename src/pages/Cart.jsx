@@ -28,6 +28,7 @@ function Cart({
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
+  const [lastWhatsAppUrl, setLastWhatsAppUrl] = useState("");
 
   const [checkoutData, setCheckoutData] = useState({
     customerName: "",
@@ -204,6 +205,7 @@ function Cart({
   const handleSubmitOrder = async () => {
     setFormError("");
     setFormSuccess("");
+    setLastWhatsAppUrl("");
 
     const validationError = validateForm();
     if (validationError) {
@@ -211,8 +213,18 @@ function Cart({
       return;
     }
 
+    let whatsappWindow = null;
+
     try {
       setIsSubmittingOrder(true);
+
+      if (checkoutData.paymentMethod !== "PAYMENT_LINK") {
+        whatsappWindow = window.open("about:blank", "_blank");
+
+        if (whatsappWindow) {
+          whatsappWindow.opener = null;
+        }
+      }
 
       const orderPayload = buildOrderPayload();
       const orderResponse = await createOrder(orderPayload);
@@ -267,13 +279,32 @@ function Cart({
       setFormSuccess("Pedido creado correctamente. Abriendo WhatsApp...");
 
       if (orderResponse.whatsappUrl) {
-        const whatsappWindow = window.open(orderResponse.whatsappUrl, "_blank", "noopener,noreferrer");
+        setLastWhatsAppUrl(orderResponse.whatsappUrl);
 
         if (whatsappWindow) {
           whatsappWindow.opener = null;
+          whatsappWindow.location.href = orderResponse.whatsappUrl;
+        } else {
+          window.location.href = orderResponse.whatsappUrl;
+          setFormSuccess(
+            "Pedido creado correctamente. Si WhatsApp no se abre, usa el boton de abajo."
+          );
         }
+      } else if (whatsappWindow) {
+        whatsappWindow.close();
+        setFormSuccess(
+          "Pedido creado correctamente, pero no se genero el enlace de WhatsApp."
+        );
       }
     } catch (error) {
+      if (whatsappWindow) {
+        try {
+          whatsappWindow.close();
+        } catch (closeError) {
+          console.error(closeError);
+        }
+      }
+
       console.error(error);
       setFormError(error.message || "No se pudo crear el pedido.");
 
@@ -577,6 +608,16 @@ function Cart({
             <div className="checkout-message-slot">
               {formError && <div className="form-error">{formError}</div>}
               {formSuccess && <div className="form-success">{formSuccess}</div>}
+              {lastWhatsAppUrl && (
+                <a
+                  className="checkout-whatsapp-link"
+                  href={lastWhatsAppUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Abrir WhatsApp manualmente
+                </a>
+              )}
             </div>
 
             <button
