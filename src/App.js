@@ -475,6 +475,13 @@ function App() {
     setStoreMessage("Pedido cancelado y stock liberado.");
   }, [loadData, setOrders]);
 
+  const refreshOrders = useCallback(async () => {
+    if (!currentUser?.permissions?.orders) return;
+
+    const ordersResponse = await getOrders();
+    setOrders(ordersResponse.data || []);
+  }, [currentUser, setOrders]);
+
   function ProtectedRoute({ children, permission }) {
     if (!isLoggedIn) {
       return <Navigate to="/panel" replace />;
@@ -602,6 +609,7 @@ function App() {
                   {renderAdminPage(
                     <AdminOrders
                       orders={orders}
+                      refreshOrders={refreshOrders}
                       confirmOrder={confirmOrder}
                       cancelOrder={cancelOrder}
                       currentUser={currentUser}

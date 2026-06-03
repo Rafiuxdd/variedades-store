@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-function AdminOrders({ orders = [], confirmOrder, cancelOrder }) {
+function AdminOrders({ orders = [], refreshOrders, confirmOrder, cancelOrder }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [actionMessage, setActionMessage] = useState("");
   const [loadingOrderId, setLoadingOrderId] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const currentFilter = searchParams.get("status") || "ALL";
 
@@ -31,6 +32,48 @@ function AdminOrders({ orders = [], confirmOrder, cancelOrder }) {
 
     setSearchParams({ status });
   };
+
+  const handleRefresh = useCallback(async ({ quiet = false } = {}) => {
+    if (!refreshOrders) return;
+
+    try {
+      setIsRefreshing(true);
+      await refreshOrders();
+
+      if (!quiet) {
+        setActionMessage("Pedidos actualizados.");
+      }
+    } catch (error) {
+      console.error(error);
+      setActionMessage(error.message || "No se pudieron actualizar los pedidos.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshOrders]);
+
+  useEffect(() => {
+    handleRefresh({ quiet: true });
+  }, [handleRefresh]);
+
+  useEffect(() => {
+    const refreshOnFocus = () => {
+      handleRefresh({ quiet: true });
+    };
+
+    const refreshOnVisibility = () => {
+      if (document.visibilityState === "visible") {
+        handleRefresh({ quiet: true });
+      }
+    };
+
+    window.addEventListener("focus", refreshOnFocus);
+    document.addEventListener("visibilitychange", refreshOnVisibility);
+
+    return () => {
+      window.removeEventListener("focus", refreshOnFocus);
+      document.removeEventListener("visibilitychange", refreshOnVisibility);
+    };
+  }, [handleRefresh]);
 
   const handleConfirm = async (orderId) => {
     try {
@@ -114,6 +157,14 @@ function AdminOrders({ orders = [], confirmOrder, cancelOrder }) {
               </strong>
             </p>
           </div>
+          <button
+            type="button"
+            className="user-edit-btn"
+            onClick={() => handleRefresh()}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? "Actualizando..." : "Actualizar"}
+          </button>
         </div>
 
         {filteredOrders.length === 0 ? (
