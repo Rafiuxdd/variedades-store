@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -18,7 +18,15 @@ import AdminOrders from "./pages/AdminOrders";
 import { useAuth } from "./hooks/useAuth";
 import { useCart } from "./hooks/useCart";
 import { useStoreData } from "./hooks/useStoreData";
-import { DEFAULT_DELIVERY_RATES } from "./data/deliveryZones";
+import { useDeliveryRates } from "./hooks/useDeliveryRates";
+import { useStoreMessage } from "./hooks/useStoreMessage";
+import {
+  DEFAULT_CATEGORY,
+  buildCategoryNames,
+  findCategoryIdByName,
+  sortCategoriesByDate
+} from "./utils/categories";
+import { applyCartStock, getCartQuantityForProduct } from "./utils/cartStock";
 
 import {
   createCategory,
@@ -29,8 +37,6 @@ import {
   createDeliveryPoint,
   updateDeliveryPointById,
   deleteDeliveryPointById,
-  getDeliveryRates,
-  updateDeliveryRates,
   getOrders,
   confirmOrderById,
   cancelOrderById,
@@ -79,47 +85,11 @@ function App() {
     setDeliveryPoints
   } = useStoreData();
 
-  const [storeMessage, setStoreMessage] = useState("");
-  const [deliveryRates, setDeliveryRates] = useState(() => {
-    try {
-      const saved = localStorage.getItem("deliveryRates");
-      return saved
-        ? { ...DEFAULT_DELIVERY_RATES, ...JSON.parse(saved) }
-        : DEFAULT_DELIVERY_RATES;
-    } catch (error) {
-      console.error("Error reading delivery rates:", error);
-      return DEFAULT_DELIVERY_RATES;
-    }
-  });
-
-  useEffect(() => {
-    async function loadDeliveryRates() {
-      try {
-        const response = await getDeliveryRates();
-        setDeliveryRates({
-          ...DEFAULT_DELIVERY_RATES,
-          ...(response.data || {})
-        });
-      } catch (error) {
-        console.error("Error loading delivery rates:", error);
-      }
-    }
-
-    loadDeliveryRates();
-  }, []);
-
-  useEffect(() => {
-    if (!storeMessage) return;
-    const timer = setTimeout(() => setStoreMessage(""), 3000);
-    return () => clearTimeout(timer);
-  }, [storeMessage]);
-
-  useEffect(() => {
-    localStorage.setItem("deliveryRates", JSON.stringify(deliveryRates));
-  }, [deliveryRates]);
+  const { storeMessage, setStoreMessage } = useStoreMessage();
+  const { deliveryRates, saveDeliveryRates } = useDeliveryRates();
 
   const uncategorizedCount = useMemo(
-    () => products.filter((product) => product.category === "Sin categoría").length,
+    () => products.filter((product) => product.category === DEFAULT_CATEGORY).length,
     [products]
   );
 
@@ -134,19 +104,10 @@ function App() {
   );
 
 
-  const productsForHome = useMemo(() => {
-    return products.map((product) => {
-      const quantityInCart = cart
-        .filter((item) => (item.productId || item.id) === product.id)
-        .reduce((total, item) => total + Number(item.quantity || 0), 0);
-      const availableStock = Math.max(0, Number(product.stock) - quantityInCart);
-
-      return {
-        ...product,
-        stock: availableStock
-      };
-    });
-  }, [products, cart]);
+  const productsForHome = useMemo(
+    () => applyCartStock(products, cart),
+    [products, cart]
+  );
 
   const addToCart = useCallback(
     (productId, selectedOptions = {}) => {
@@ -157,9 +118,7 @@ function App() {
         return;
       }
 
-      const quantityInCart = cart
-        .filter((item) => (item.productId || item.id) === productId)
-        .reduce((total, item) => total + Number(item.quantity || 0), 0);
+      const quantityInCart = getCartQuantityForProduct(cart, productId);
       const availableStock = Number(product.stock) - quantityInCart;
 
       if (availableStock <= 0) {
@@ -170,7 +129,7 @@ function App() {
       addItemToCart(product, selectedOptions);
       setStoreMessage(`Agregaste "${product.name}" al carrito.`);
     },
-    [products, cart, addItemToCart]
+    [products, cart, addItemToCart, setStoreMessage]
   );
 
   const removeOneFromCart = useCallback(
@@ -182,7 +141,7 @@ function App() {
 
       setStoreMessage(`Quitaste una unidad de "${item.name}".`);
     },
-    [cart, decreaseItemQuantity]
+    [cart, decreaseItemQuantity, setStoreMessage]
   );
 
   const removeProductCompletely = useCallback(
@@ -194,7 +153,7 @@ function App() {
 
       setStoreMessage(`Eliminaste "${item.name}" del carrito.`);
     },
-    [cart, removeCartItem]
+    [cart, removeCartItem, setStoreMessage]
   );
 
   const addUser = useCallback(async (newUser) => {
@@ -211,7 +170,7 @@ function App() {
 
     setUsers((prev) => [createdUser, ...prev]);
     setStoreMessage(`Usuario "${createdUser.name}" creado correctamente.`);
-  }, [setUsers]);
+  }, [setUsers, setStoreMessage]);
 
   const updateUser = useCallback(
     async (updatedUser) => {
@@ -237,7 +196,7 @@ function App() {
 
       setStoreMessage(`Usuario "${savedUser.name}" actualizado correctamente.`);
     },
-    [currentUser, setCurrentUser, setUsers]
+    [currentUser, setCurrentUser, setUsers, setStoreMessage]
   );
 
   const deleteUser = useCallback(
@@ -252,7 +211,7 @@ function App() {
       setUsers((prev) => prev.filter((user) => user.id !== id));
       setStoreMessage("Usuario eliminado correctamente.");
     },
-    [currentUser, setUsers]
+    [currentUser, setUsers, setStoreMessage]
   );
 
   const addCategory = useCallback(
@@ -274,18 +233,18 @@ function App() {
         setStoreMessage(error.message || "No se pudo agregar la categoría.");
       }
     },
-    [categoryRecords, setCategories, setCategoryRecords]
+    [categoryRecords, setCategories, setCategoryRecords, setStoreMessage]
   );
 
   const deleteCategory = useCallback(
     async (categoryToDelete) => {
-      if (categoryToDelete === "Sin categoría") {
-        setStoreMessage('No puedes eliminar la categoría "Sin categoría".');
+      if (categoryToDelete === DEFAULT_CATEGORY) {
+        setStoreMessage(`No puedes eliminar la categoría "${DEFAULT_CATEGORY}".`);
         return;
       }
 
       const confirmed = window.confirm(
-        `¿Eliminar la categoría "${categoryToDelete}"? Los productos asignados pasarán a "Sin categoría".`
+        `¿Eliminar la categoría "${categoryToDelete}"? Los productos asignados pasarán a "${DEFAULT_CATEGORY}".`
       );
       if (!confirmed) return;
 
@@ -305,7 +264,7 @@ function App() {
         setCart((prev) =>
           prev.map((item) =>
             item.category === categoryToDelete
-              ? { ...item, category: "Sin categoría" }
+              ? { ...item, category: DEFAULT_CATEGORY }
               : item
           )
         );
@@ -316,7 +275,7 @@ function App() {
         setStoreMessage(error.message || "No se pudo eliminar la categoría.");
       }
     },
-    [categoryRecords, loadData, setCart]
+    [categoryRecords, loadData, setCart, setStoreMessage]
   );
 
   const addProduct = useCallback(
@@ -343,7 +302,7 @@ function App() {
         setStoreMessage(error.message || "No se pudo agregar el producto.");
       }
     },
-    [categoryRecords, setProducts]
+    [categoryRecords, setProducts, setStoreMessage]
   );
 
   const updateProduct = useCallback(
@@ -399,7 +358,7 @@ function App() {
         setStoreMessage(error.message || "No se pudo actualizar el producto.");
       }
     },
-    [categoryRecords, setCart, setProducts]
+    [categoryRecords, setCart, setProducts, setStoreMessage]
   );
 
   const deleteProduct = useCallback(
@@ -425,7 +384,7 @@ function App() {
         setStoreMessage(error.message || "No se pudo eliminar el producto.");
       }
     },
-    [cart, setProducts]
+    [cart, setProducts, setStoreMessage]
   );
 
   const addDeliveryPoint = useCallback(async (payload) => {
@@ -448,24 +407,13 @@ function App() {
     setDeliveryPoints((prev) => prev.filter((point) => point.id !== id));
   }, [setDeliveryPoints]);
 
-  const saveDeliveryRates = useCallback(async (nextRates) => {
-    const response = await updateDeliveryRates({ rates: nextRates });
-    const savedRates = {
-      ...DEFAULT_DELIVERY_RATES,
-      ...(response.data || nextRates)
-    };
-
-    setDeliveryRates(savedRates);
-    localStorage.setItem("deliveryRates", JSON.stringify(savedRates));
-  }, []);
-
   const confirmOrder = useCallback(async (id) => {
     await confirmOrderById(id);
     const ordersResponse = await getOrders();
     setOrders(ordersResponse.data || []);
     await loadData();
     setStoreMessage("Pedido confirmado correctamente.");
-  }, [loadData, setOrders]);
+  }, [loadData, setOrders, setStoreMessage]);
 
   const cancelOrder = useCallback(async (id) => {
     await cancelOrderById(id);
@@ -473,7 +421,7 @@ function App() {
     setOrders(ordersResponse.data || []);
     await loadData();
     setStoreMessage("Pedido cancelado y stock liberado.");
-  }, [loadData, setOrders]);
+  }, [loadData, setOrders, setStoreMessage]);
 
   const refreshOrders = useCallback(async () => {
     if (!currentUser?.permissions?.orders) return;
@@ -680,34 +628,6 @@ function App() {
       </BrowserRouter>
     </div>
   );
-}
-
-function buildCategoryNames(categoryData = []) {
-  const names = categoryData.map((category) => category.name);
-
-  if (!names.includes("Sin categoría")) {
-    return ["Sin categoría", ...names];
-  }
-
-  return names;
-}
-
-function sortCategoriesByDate(categoryData = []) {
-  return [...categoryData].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
-}
-
-function findCategoryIdByName(categoryName, categoryRecords = []) {
-  if (!categoryName || categoryName === "Sin categoría") {
-    const uncategorized = categoryRecords.find(
-      (category) => category.name === "Sin categoría"
-    );
-    return uncategorized?.id || null;
-  }
-
-  const found = categoryRecords.find((category) => category.name === categoryName);
-  return found?.id || null;
 }
 
 export default App;

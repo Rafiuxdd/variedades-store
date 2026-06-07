@@ -6,23 +6,12 @@ import {
 } from "../lib/api";
 import { mapProductFromApi } from "../lib/mapper";
 import initialProducts from "../data/products";
-
-const DEFAULT_CATEGORY = "Sin categoría";
+import { DEFAULT_CATEGORY, buildCategoryNames } from "../utils/categories";
 
 const INITIAL_CATEGORIES = [
   DEFAULT_CATEGORY,
   ...Array.from(new Set(initialProducts.map((product) => product.category)))
 ];
-
-function buildCategoryNames(categoryData = []) {
-  const names = categoryData.map((category) => category.name);
-
-  if (!names.includes(DEFAULT_CATEGORY)) {
-    return [DEFAULT_CATEGORY, ...names];
-  }
-
-  return names;
-}
 
 export function useStoreData() {
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
