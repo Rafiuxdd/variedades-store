@@ -35,99 +35,72 @@ function Panel({ login }) {
         return;
       }
 
-      setError(result.message || "Correo o contraseña incorrectos.");
+      setError(result.message || "Correo o contrasena incorrectos.");
     } catch (error) {
-      setError(error.message || "No se pudo iniciar sesión.");
+      setError(error.message || "No se pudo iniciar sesion.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="page panel-page panel-fashion-page">
-      <div className="panel-fashion-layout balanced-layout">
-        <section className="panel-fashion-card panel-login-card balanced-card balanced-main-card">
-          <div className="panel-login-top">
-            <span className="panel-overline">Admin access</span>
-            <button type="button" className="panel-ghost-btn">
-              Sign in
+    <div className="page panel-page">
+      <section className="panel-auth-layout">
+        <div className="panel-auth-card">
+          <div className="panel-auth-header">
+            <span>Panel administrativo</span>
+            <h1>Variedades Store</h1>
+            <p>
+              Ingresa con tu usuario autorizado para gestionar productos,
+              pedidos y puntos de entrega.
+            </p>
+          </div>
+
+          <form className="panel-form-modern panel-auth-form" onSubmit={handleSubmit}>
+            <label className="panel-auth-field">
+              <span>Correo</span>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="admin@tienda.com"
+                autoComplete="username"
+              />
+            </label>
+
+            <label className="panel-auth-field">
+              <span>Contrasena</span>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Tu contrasena"
+                autoComplete="current-password"
+              />
+            </label>
+
+            <p className={`error-text panel-error-slot ${error ? "visible" : ""}`}>
+              {error || " "}
+            </p>
+
+            <button type="submit" className="panel-auth-submit" disabled={isLoading}>
+              {isLoading ? "Ingresando..." : "Entrar"}
             </button>
+          </form>
+        </div>
+
+        <aside className="panel-auth-info">
+          <span>Administracion</span>
+          <h2>Control claro para la operacion diaria.</h2>
+          <div className="panel-auth-list">
+            <p>Productos e inventario</p>
+            <p>Pedidos por WhatsApp</p>
+            <p>Usuarios y permisos</p>
           </div>
-
-          <div className="panel-login-main">
-            <h2>Log in</h2>
-
-            <form className="panel-form-modern" onSubmit={handleSubmit}>
-              <div className="panel-input-wrap">
-                <span className="panel-input-icon">@</span>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="correo"
-                  autoComplete="username"
-                />
-              </div>
-
-              <div className="panel-input-wrap">
-                <span className="panel-input-icon">⌁</span>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="password"
-                  autoComplete="current-password"
-                />
-              </div>
-
-              <p className={`error-text panel-error-slot ${error ? "visible" : ""}`}>
-                {error || " "}
-              </p>
-
-              <div className="panel-form-bottom">
-                <p>Accede al panel administrativo de la tienda.</p>
-
-                <button type="submit" className="panel-arrow-btn" disabled={isLoading}>
-                  {isLoading ? "..." : "→"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <section className="panel-fashion-card panel-date-card balanced-card">
-          <div className="panel-date-content">
-            <h3>Admin</h3>
-            <div className="panel-year">Panel</div>
-
-            <div className="panel-date-meta">
-              <p>Variedades Store</p>
-              <p>Gestión de productos</p>
-              <p>Pedidos y puntos de entrega</p>
-            </div>
-          </div>
-
-          <div className="panel-date-glow" />
-        </section>
-
-        <section className="panel-fashion-card panel-reference-card instagram-card balanced-card">
-          <div>
-            <h3>Instagram</h3>
-            <p>@variedades_store</p>
-          </div>
-
-          <a
-            href="https://www.instagram.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="panel-dark-action instagram-action"
-          >
-            Ver perfil
-          </a>
-        </section>
-      </div>
+        </aside>
+      </section>
     </div>
   );
 }
