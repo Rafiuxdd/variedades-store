@@ -1,7 +1,6 @@
 const API_URL = (
-  process.env.NODE_ENV === "production"
-    ? "/api"
-    : process.env.REACT_APP_API_URL || "http://localhost:4000/api"
+  process.env.REACT_APP_API_URL ||
+  (process.env.NODE_ENV === "production" ? "/api" : "http://localhost:4000/api")
 ).replace(/\/$/, "");
 
 const USER_STORAGE_KEY = "variedades_store_user";
@@ -37,7 +36,7 @@ async function parseResponseBody(response) {
     return {
       message:
         response.status === 404
-          ? "No se encontro el servicio del backend. Revisa la URL configurada en Netlify."
+          ? "No se encontro el servicio del backend. Revisa la URL configurada en el hosting."
           : "El servidor respondio con una pagina HTML en lugar de datos validos."
     };
   }
