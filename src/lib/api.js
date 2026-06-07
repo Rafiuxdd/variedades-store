@@ -5,6 +5,7 @@ const API_URL = (
 ).replace(/\/$/, "");
 
 const USER_STORAGE_KEY = "variedades_store_user";
+const HTML_RESPONSE_PATTERN = /^\s*(?:<!doctype html|<html|<head|<body)/i;
 
 export function saveSession(user) {
   localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
@@ -31,10 +32,25 @@ async function parseResponseBody(response) {
     return {};
   }
 
+  const contentType = response.headers.get("content-type") || "";
+  if (contentType.includes("text/html") || HTML_RESPONSE_PATTERN.test(text)) {
+    return {
+      message:
+        response.status === 404
+          ? "No se encontro el servicio del backend. Revisa la URL configurada en Netlify."
+          : "El servidor respondio con una pagina HTML en lugar de datos validos."
+    };
+  }
+
   try {
     return JSON.parse(text);
   } catch {
-    return { message: text };
+    return {
+      message:
+        text.length > 220
+          ? "El servidor respondio con un formato no valido."
+          : text
+    };
   }
 }
 

@@ -10,6 +10,7 @@ const HOP_BY_HOP_HEADERS = new Set([
   "transfer-encoding",
   "upgrade"
 ]);
+const HTML_RESPONSE_PATTERN = /^\s*(?:<!doctype html|<html|<head|<body)/i;
 
 function normalizeBackendUrl(value) {
   return String(value || "")
@@ -41,6 +42,7 @@ function getForwardedSetCookies(headers) {
 
 exports.handler = async (event) => {
   const backendUrl = normalizeBackendUrl(process.env.BACKEND_URL);
+  const currentHost = event.headers.host || event.headers.Host || "";
 
   if (!backendUrl) {
     return {
@@ -49,6 +51,17 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         ok: false,
         message: "BACKEND_URL no esta configurado en Netlify."
+      })
+    };
+  }
+
+  if (currentHost && backendUrl.includes(currentHost)) {
+    return {
+      statusCode: 500,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        ok: false,
+        message: "BACKEND_URL debe apuntar al backend en Railway, no a la URL de Netlify."
       })
     };
   }
@@ -77,11 +90,27 @@ exports.handler = async (event) => {
   });
 
   const setCookies = getForwardedSetCookies(response.headers);
+  const responseBody = await response.text();
+  const responseContentType = response.headers.get("content-type") || "";
+
+  if (responseContentType.includes("text/html") || HTML_RESPONSE_PATTERN.test(responseBody)) {
+    return {
+      statusCode: response.ok ? 502 : response.status,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        ok: false,
+        message:
+          response.status === 404
+            ? "No se encontro el backend. Revisa que BACKEND_URL en Netlify apunte al dominio de Railway."
+            : "El backend respondio con HTML en lugar de JSON."
+      })
+    };
+  }
 
   return {
     statusCode: response.status,
     headers: responseHeaders,
     multiValueHeaders: setCookies.length > 0 ? { "set-cookie": setCookies } : undefined,
-    body: await response.text()
+    body: responseBody
   };
 };
